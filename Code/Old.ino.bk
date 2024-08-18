@@ -1,0 +1,81 @@
+#include <avr/wdt.h>
+#include "Funcs.h"
+
+boolean run = false;
+float speed = 120;
+float turnSpeed = 75;
+float moveTime = 0.5;
+float waitTime = 1;
+
+void setup()
+{
+  Serial.write("Starting up");
+  // put your setup code here, to run once:
+  Functions.Init();
+  // wdt_enable(WDTO_2S);
+
+  return;
+  while (true)
+  {
+    if (true)
+    {
+      // set the servo to 90 degrees
+      Functions.SetServo(90);
+      // wait for 1 second
+      Functions.Wait(waitTime);
+      // check how far away the closest object is
+      float distance = Functions.HowFarIsTheUltrasoundReading();
+      // if it is far enough
+      if (Functions.IsItFarEnoughToDriveForwards(distance))
+      {
+        // move forwards a bit
+        Functions.Move(0, moveTime, speed);
+      }
+      else
+      {
+        // set the servo to 0 degrees
+        Functions.SetServo(0);
+        // wait for 1 second
+        Functions.Wait(waitTime);
+        // check how far away the closest object is
+        distance = Functions.HowFarIsTheUltrasoundReading();
+        // if it is far enough
+        if (Functions.IsItFarEnoughToDriveForwards(distance))
+        {
+          // rotate 90 degrees to the left
+          Functions.RotateRight(90, turnSpeed);
+        }
+        else
+        {
+          // set the servo to 180 degrees
+          Functions.SetServo(180);
+          // wait for 1 second
+          Functions.Wait(waitTime);
+          // check how far away the closest object is
+          distance = Functions.HowFarIsTheUltrasoundReading();
+          // if it is far enough
+          if (Functions.IsItFarEnoughToDriveForwards(distance))
+          {
+            // rotate 90 degrees to the right
+            Functions.RotateLeft(90, turnSpeed);
+          }
+          else
+          {
+            // move backwards a bit
+            Functions.Move(180, moveTime, turnSpeed);
+            // rotate 180 degrees to the left
+          }
+        }
+      }
+    }
+    else
+    {
+      Functions.Wait(0.5);
+    }
+  }
+}
+
+void loop()
+{
+  Functions.ParseSerialInput();
+}
